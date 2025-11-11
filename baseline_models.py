@@ -67,10 +67,6 @@ def fama_french_5(train_loader, test_loader):
     test_sharpe = (test_sdf_returns.mean() / test_sdf_returns.std()) * np.sqrt(12)
     avg_alpha = np.abs(alphas).mean()
 
-    print(f"Train Sharpe Ratio: {train_sharpe:.4f}")
-    print(f"Test Sharpe Ratio: {test_sharpe:.4f}")
-    print(f"Average |Alpha|: {avg_alpha:.6f}")
-
     return {
         'train_sharpe': train_sharpe,
         'test_sharpe': test_sharpe,
@@ -123,9 +119,6 @@ def linear_mv(train_loader, test_loader):
     train_sharpe = (train_portfolio_ret.mean() / train_portfolio_ret.std()) * np.sqrt(12)
     test_sharpe = (test_portfolio_ret.mean() / test_portfolio_ret.std()) * np.sqrt(12)
 
-    print(f"Train Sharpe Ratio: {train_sharpe:.4f}")
-    print(f"Test Sharpe Ratio: {test_sharpe:.4f}")
-    print(f"Portfolio weights range: [{weights.min():.4f}, {weights.max():.4f}]")
 
     return {
         'train_sharpe': train_sharpe,
