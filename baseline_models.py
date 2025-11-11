@@ -9,9 +9,6 @@ def fama_french_5(train_loader, test_loader):
     Traditional factor model:
     R_i,t = α_i + β'·F_t + ε_i,t
     """
-    print("\n" + "="*60)
-    print("BASELINE 1: Fama-French 5-Factor Model")
-    print("="*60)
 
     # Collect all data
     train_returns = []
@@ -82,9 +79,6 @@ def linear_mv(train_loader, test_loader):
 
     Maximize: ω'μ - λ·ω'Σω
     """
-    print("\n" + "="*60)
-    print("BASELINE 2: Linear Mean-Variance Portfolio")
-    print("="*60)
 
     # Collect returns
     train_returns = []
