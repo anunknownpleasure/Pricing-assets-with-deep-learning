@@ -22,6 +22,27 @@ class AssetPricingDataset(Dataset):
         }
 
 
+MACRO_TICKERS = {
+    'Term_Spread':      'T10YFFM',   # 10-Yr Treasury minus Fed Funds
+    'Default_Spread':   'AAAFFM',    # Aaa Corp yield minus Fed Funds
+    'Ind_Production':   'INDPRO',    # Industrial Production Index
+    'Unemployment':     'UNRATE',    # Civilian Unemployment Rate
+    'CPI':              'CPIAUCSL',  # Consumer Price Index
+    'Fed_Funds':        'FEDFUNDS',  # Federal Funds Effective Rate
+    'M2':               'M2SL',      # M2 Money Supply
+    'Housing_Starts':   'HOUST',     # Total Housing Starts
+    'Payrolls':         'PAYEMS',    # Nonfarm Payrolls
+    'Savings_Rate':     'PSAVERT',   # Personal Savings Rate
+    'Treasury_10Y':     'GS10',      # 10-Year Treasury Yield
+    'Treasury_3M':      'TB3MS',     # 3-Month Treasury Bill
+    'Build_Permits':    'PERMIT',    # New Private Housing Permits
+    'Comm_Loans':       'BUSLOANS',  # Commercial & Industrial Loans
+    'Disp_Income':      'DSPIC96',   # Real Disposable Personal Income
+}
+
+N_FF = 6  # Mkt-RF, SMB, HML, RMW, CMA, RF
+
+
 def _fetch_data(start, end):
     """Fetch and align FF5 factors, macro indicators, and FF25 portfolios."""
     import getFamaFrenchFactors
@@ -35,25 +56,8 @@ def _fetch_data(start, end):
     factors_df = factors_df[factors_df.index >= start]
 
     # --- Macro indicators from FRED ---
-    macro_tickers = {
-        'Term_Spread':      'T10YFFM',   # 10-Yr Treasury minus Fed Funds
-        'Default_Spread':   'AAAFFM',    # Aaa Corp yield minus Fed Funds
-        'Ind_Production':   'INDPRO',    # Industrial Production Index
-        'Unemployment':     'UNRATE',    # Civilian Unemployment Rate
-        'CPI':              'CPIAUCSL',  # Consumer Price Index
-        'Fed_Funds':        'FEDFUNDS',  # Federal Funds Effective Rate
-        'M2':               'M2SL',      # M2 Money Supply
-        'Housing_Starts':   'HOUST',     # Total Housing Starts
-        'Payrolls':         'PAYEMS',    # Nonfarm Payrolls
-        'Savings_Rate':     'PSAVERT',   # Personal Savings Rate
-        'Treasury_10Y':     'GS10',      # 10-Year Treasury Yield
-        'Treasury_3M':      'TB3MS',     # 3-Month Treasury Bill
-        'Build_Permits':    'PERMIT',    # New Private Housing Permits
-        'Comm_Loans':       'BUSLOANS',  # Commercial & Industrial Loans
-        'Disp_Income':      'DSPIC96',   # Real Disposable Personal Income
-    }
-    macro_raw = web.DataReader(list(macro_tickers.values()), 'fred', start=start, end=end)
-    macro_raw.columns = list(macro_tickers.keys())
+    macro_raw = web.DataReader(list(MACRO_TICKERS.values()), 'fred', start=start, end=end)
+    macro_raw.columns = list(MACRO_TICKERS.keys())
     macro_raw = macro_raw.ffill().resample('ME').last()
 
     # --- FF 25 portfolios ---
@@ -99,9 +103,10 @@ def get_dataloaders(
     """
     combined = _fetch_data(start, end)
 
-    ff_cols = combined.columns[:6]       # Mkt-RF, SMB, HML, RMW, CMA, RF
-    macro_cols = combined.columns[6:11]  # 5 macro indicators
-    port_cols = combined.columns[11:]    # 25 FF portfolios
+    n_macro = len(MACRO_TICKERS)
+    ff_cols    = combined.columns[:N_FF]
+    macro_cols = combined.columns[N_FF: N_FF + n_macro]
+    port_cols  = combined.columns[N_FF + n_macro:]
 
     ff_arr = combined[ff_cols].values.astype(np.float32)
     macro_arr = combined[macro_cols].values.astype(np.float32)
