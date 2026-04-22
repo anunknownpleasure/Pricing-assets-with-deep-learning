@@ -67,17 +67,29 @@ class Discriminator(nn.Module):
     """
     Discriminator (Conditioning Network)
 
+    Has its own LSTM to independently learn the macro state representation,
+    matching the paper's architecture more closely.
+
     Inputs:
-    - h_t: Hidden macro states [batch, hidden_dim]
+    - macro_X: Macro time series [batch, seq_len, macro_dim]
     - ff_X: FF factors [batch, ff_dim]
 
     Output:
     - g: Conditioning instruments [batch, num_instruments]
     """
-    def __init__(self, hidden_dim, ff_dim, num_instruments, hidden_layer):
+    def __init__(self, macro_dim, ff_dim, num_instruments, hidden_layer,
+                 d_lstm_hidden_dim=16, d_lstm_layers=1):
         super().__init__()
 
-        input_dim = hidden_dim + ff_dim
+        self.lstm = nn.LSTM(
+            input_size=macro_dim,
+            hidden_size=d_lstm_hidden_dim,
+            num_layers=d_lstm_layers,
+            batch_first=True,
+            dropout=0.05 if d_lstm_layers > 1 else 0,
+        )
+
+        input_dim = d_lstm_hidden_dim + ff_dim
 
         self.fc1 = nn.Linear(input_dim, hidden_layer)
         self.bn1 = nn.BatchNorm1d(hidden_layer)
@@ -87,8 +99,11 @@ class Discriminator(nn.Module):
         self.activation = nn.ReLU()
         self.dropout = nn.Dropout(0.05)
 
-    def forward(self, h_t, ff_X):
-        # Combine macro states with FF factors
+    def forward(self, macro_X, ff_X):
+        # Independently encode macro time series
+        _, (h_n, _) = self.lstm(macro_X)
+        h_t = h_n[-1]  # [batch, d_lstm_hidden_dim]
+
         x = torch.cat([h_t, ff_X], dim=1)
 
         x = self.fc1(x)

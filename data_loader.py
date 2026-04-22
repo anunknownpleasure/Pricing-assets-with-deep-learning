@@ -36,11 +36,21 @@ def _fetch_data(start, end):
 
     # --- Macro indicators from FRED ---
     macro_tickers = {
-        'Term_Spread': 'T10YFFM',
-        'Default_Spread': 'AAAFFM',
-        'Ind_Production': 'INDPRO',
-        'Unemployment': 'UNRATE',
-        'Consumer_Sentiment': 'UMCSENT',
+        'Term_Spread':      'T10YFFM',   # 10-Yr Treasury minus Fed Funds
+        'Default_Spread':   'AAAFFM',    # Aaa Corp yield minus Fed Funds
+        'Ind_Production':   'INDPRO',    # Industrial Production Index
+        'Unemployment':     'UNRATE',    # Civilian Unemployment Rate
+        'CPI':              'CPIAUCSL',  # Consumer Price Index
+        'Fed_Funds':        'FEDFUNDS',  # Federal Funds Effective Rate
+        'M2':               'M2SL',      # M2 Money Supply
+        'Housing_Starts':   'HOUST',     # Total Housing Starts
+        'Payrolls':         'PAYEMS',    # Nonfarm Payrolls
+        'Savings_Rate':     'PSAVERT',   # Personal Savings Rate
+        'Treasury_10Y':     'GS10',      # 10-Year Treasury Yield
+        'Treasury_3M':      'TB3MS',     # 3-Month Treasury Bill
+        'Build_Permits':    'PERMIT',    # New Private Housing Permits
+        'Comm_Loans':       'BUSLOANS',  # Commercial & Industrial Loans
+        'Disp_Income':      'DSPIC96',   # Real Disposable Personal Income
     }
     macro_raw = web.DataReader(list(macro_tickers.values()), 'fred', start=start, end=end)
     macro_raw.columns = list(macro_tickers.keys())

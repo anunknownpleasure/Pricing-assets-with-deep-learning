@@ -36,15 +36,19 @@ def run_optuna_study(train_loader, val_loader, n_trials=50):
     def objective(trial):
         _set_seed(trial.number)
 
-        hidden_dim = trial.suggest_categorical('hidden_dim', [8, 16, 32])
-        lstm_layers = trial.suggest_categorical('lstm_layers', [2, 3, 4])
-        hidden_layer = trial.suggest_categorical('hidden_layer', [16, 32, 64])
-        epochs = trial.suggest_categorical('epochs', [500, 1000, 1500])
+        hidden_dim        = trial.suggest_categorical('hidden_dim',        [8, 16, 32])
+        lstm_layers       = trial.suggest_categorical('lstm_layers',       [2, 3, 4])
+        hidden_layer      = trial.suggest_categorical('hidden_layer',      [16, 32, 64])
+        d_lstm_hidden_dim = trial.suggest_categorical('d_lstm_hidden_dim', [8, 16, 32])
+        d_lstm_layers     = trial.suggest_categorical('d_lstm_layers',     [1, 2])
+        epochs            = trial.suggest_categorical('epochs',            [500, 1000, 1500])
         d_lr = trial.suggest_float('d_lr', 1e-5, 1e-3, log=True)
         g_lr = trial.suggest_float('g_lr', 1e-5, 1e-3, log=True)
 
         generator = Generator(macro_dim, ff_dim, hidden_dim, lstm_layers, num_assets)
-        discriminator = Discriminator(hidden_dim, ff_dim, num_assets, hidden_layer)
+        discriminator = Discriminator(macro_dim, ff_dim, num_assets, hidden_layer,
+                                      d_lstm_hidden_dim=d_lstm_hidden_dim,
+                                      d_lstm_layers=d_lstm_layers)
 
         training_fn(generator, discriminator, train_loader, epochs, d_lr, g_lr)
 

@@ -46,8 +46,8 @@ def training_fn(
             for _ in range(d_to_g_ratio):
                 D_optim.zero_grad()
                 with torch.no_grad():
-                    weights, h_t = generator(macro_X, ff_X)
-                g_inst = discriminator(h_t, ff_X)
+                    weights, _ = generator(macro_X, ff_X)
+                g_inst = discriminator(macro_X, ff_X)
                 d_loss = GAN_loss.discriminator_loss(weights, returns, g_inst, reg=regularize)
                 d_loss.backward()
                 torch.nn.utils.clip_grad_norm_(discriminator.parameters(), max_norm=1.0)
@@ -55,9 +55,9 @@ def training_fn(
 
             # --- Train Generator ---
             G_optim.zero_grad()
-            weights, h_t = generator(macro_X, ff_X)
+            weights, _ = generator(macro_X, ff_X)
             with torch.no_grad():
-                g_inst = discriminator(h_t, ff_X)
+                g_inst = discriminator(macro_X, ff_X)
             g_loss = GAN_loss.generator_loss(weights, returns, g_inst, reg=regularize)
             g_loss.backward()
             torch.nn.utils.clip_grad_norm_(generator.parameters(), max_norm=1.0)

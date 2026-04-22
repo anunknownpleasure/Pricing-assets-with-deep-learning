@@ -34,7 +34,9 @@ def run_ensemble(params, n_rounds, train_loader, test_loader, regularize=False):
         print(f"  Round {round_num + 1}/{n_rounds}")
 
         generator = Generator(macro_dim, ff_dim, params['hidden_dim'], params['lstm_layers'], num_assets)
-        discriminator = Discriminator(params['hidden_dim'], ff_dim, num_assets, params['hidden_layer'])
+        discriminator = Discriminator(macro_dim, ff_dim, num_assets, params['hidden_layer'],
+                                      d_lstm_hidden_dim=params.get('d_lstm_hidden_dim', 16),
+                                      d_lstm_layers=params.get('d_lstm_layers', 1))
 
         training_fn(
             generator, discriminator, train_loader,
