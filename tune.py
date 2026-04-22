@@ -42,7 +42,7 @@ def run_optuna_study(train_loader, val_loader, n_trials=50):
         hidden_layer      = trial.suggest_categorical('hidden_layer',      [16, 32, 64])
         d_lstm_hidden_dim = trial.suggest_categorical('d_lstm_hidden_dim', [8, 16, 32])
         d_lstm_layers     = trial.suggest_categorical('d_lstm_layers',     [1, 2])
-        epochs            = trial.suggest_categorical('epochs',            [100, 150, 200])
+        epochs            = trial.suggest_categorical('epochs',            [150, 200, 300, 500])
         d_lr = trial.suggest_float('d_lr', 1e-5, 1e-3, log=True)
         g_lr = trial.suggest_float('g_lr', 1e-5, 1e-3, log=True)
 
